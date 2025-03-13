@@ -1,0 +1,5 @@
+ktgh-open-webui.com {
+    reverse_proxy 192.168.232.61:3000  # 将请求代理到 app 服务的 3000 端口
+    encode gzip             # 启用 gzip 压缩
+     tls internal  # 使用 Caddy 内部 CA 生成自签名证书
+}
