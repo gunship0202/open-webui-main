@@ -1,0 +1,8 @@
+03/03 backend/open-webui/routers/audio.py修改compress_audio transcription 引用from .audio_splitter import audio_splitter
+      新增audio_splitter.py
+03/04 backend/open-webui/routers/file.py 修改upload_file 如果為音訊檔丟入transcription進行壓縮轉譯 
+03/10 backend新增tools 放置函式程式檔案
+03/11 設定nginx，新增conf.d、ssl，docker-compose.yaml新增nginx部分，可執行https://10.0.239.87/ 進入open-webui
+      補充，須設定防火牆，允許連接阜80,443,3000
+03/12 新增download資料夾 docker-compose.yaml新增download-service
+03/13 src\lib\components\chat\Messages\CodeBlock.svelte新增按鈕生成pdf和下載markdown檔案

@@ -19,7 +19,6 @@ from aiocache import cached
 import aiohttp
 import requests
 
-
 from fastapi import (
     Depends,
     FastAPI,
@@ -32,6 +31,8 @@ from fastapi import (
     applications,
     BackgroundTasks,
 )
+
+
 
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.middleware.cors import CORSMiddleware
@@ -414,6 +415,7 @@ app = FastAPI(
     redoc_url=None,
     lifespan=lifespan,
 )
+
 
 oauth_manager = OAuthManager(app)
 
@@ -898,7 +900,7 @@ app.include_router(functions.router, prefix="/api/v1/functions", tags=["function
 app.include_router(
     evaluations.router, prefix="/api/v1/evaluations", tags=["evaluations"]
 )
-app.include_router(utils.router, prefix="/api/v1/utils", tags=["utils"])
+app.include_router(utils.router, prefix="/api/utils", tags=["utils"])
 
 
 try:

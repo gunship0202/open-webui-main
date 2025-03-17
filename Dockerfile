@@ -92,7 +92,6 @@ ENV HF_HOME="/app/backend/data/cache/embedding/models"
 
 WORKDIR /app/backend
 
-ENV HOME=/root
 # Create user and group if not root
 RUN if [ $UID -ne 0 ]; then \
     if [ $GID -ne 0 ]; then \
@@ -122,6 +121,8 @@ RUN if [ "$USE_OLLAMA" = "true" ]; then \
     apt-get install -y --no-install-recommends curl jq && \
     # install ollama
     curl -fsSL https://ollama.com/install.sh | sh && \
+    # 在这里添加 git init
+    git init && \
     # cleanup
     rm -rf /var/lib/apt/lists/*; \
     else \
@@ -131,6 +132,8 @@ RUN if [ "$USE_OLLAMA" = "true" ]; then \
     apt-get install -y --no-install-recommends gcc python3-dev && \
     # for RAG OCR
     apt-get install -y --no-install-recommends ffmpeg libsm6 libxext6 && \
+    # 在这里也添加 git init
+    git init && \
     # cleanup
     rm -rf /var/lib/apt/lists/*; \
     fi

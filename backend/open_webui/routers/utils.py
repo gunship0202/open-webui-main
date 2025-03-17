@@ -20,7 +20,7 @@ from open_webui.env import SRC_LOG_LEVELS
 log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["MAIN"])
 
-router = APIRouter()
+router = APIRouter(prefix="/api/utils")
 
 
 @router.get("/gravatar")
@@ -93,16 +93,44 @@ async def download_chat_as_pdf(
     form_data: ChatTitleMessagesForm, user=Depends(get_verified_user)
 ):
     try:
-        pdf_bytes = PDFGenerator(form_data).generate_chat_pdf()
-
-        return Response(
+        print("\n=== PDF生成请求开始 ===")
+        print(f"用户ID: {user.id}")
+        print(f"文档标题: {form_data.title}")
+        print(f"消息数量: {len(form_data.messages)}")
+        
+        generator = PDFGenerator(form_data)
+        print("PDF生成器初始化完成")
+        
+        try:
+            pdf_bytes = generator.generate_chat_pdf()
+            print(f"PDF生成成功，大小: {len(pdf_bytes)} 字节")
+        except Exception as gen_error:
+            print(f"PDF生成器错误: {str(gen_error)}")
+            raise
+            
+        print("准备返回PDF响应...")
+        response = Response(
             content=pdf_bytes,
             media_type="application/pdf",
-            headers={"Content-Disposition": "attachment;filename=chat.pdf"},
+            headers={
+                "Content-Disposition": f"attachment;filename={form_data.title}.pdf",
+                "Content-Length": str(len(pdf_bytes))
+            }
         )
+        print("=== PDF生成请求完成 ===\n")
+        return response
+        
     except Exception as e:
-        log.exception(f"Error generating PDF: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
+        print("\n=== PDF生成请求失败 ===")
+        print(f"错误类型: {type(e)}")
+        print(f"错误信息: {str(e)}")
+        import traceback
+        print(f"错误堆栈:\n{traceback.format_exc()}")
+        log.exception(f"PDF生成失败: {e}")
+        raise HTTPException(
+            status_code=400,
+            detail=f"PDF生成失败: {str(e)}"
+        )
 
 
 @router.get("/db/download")

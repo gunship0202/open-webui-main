@@ -273,7 +273,7 @@
 	};
 
 	const confirmRecording = async () => {
-		loading = true;
+		loading = true;   
 		confirmed = true;
 
 		if (recording && mediaRecorder) {
@@ -315,7 +315,26 @@
 		// remove resize observer
 		resizeObserver.disconnect();
 	});
+	// 增加的兩個新按鈕 取消音檔 下載音檔
+	function cancelTranscription() {
+		alert('您已取消轉譯，建議下載音檔以防流失！');
+	}
+
+	function downloadAudio() {
+    	const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+
+    	const url = URL.createObjectURL(audioBlob);
+    	const a = document.createElement('a');
+    	document.body.appendChild(a);
+    	a.style = 'display: none';
+    	a.href = url;
+    	a.download = 'recording.wav';
+    	a.click();
+    	window.URL.revokeObjectURL(url);
+	}
+
 </script>
+
 
 <div
 	bind:clientWidth={containerWidth}
@@ -391,13 +410,31 @@
 
 		<div class="flex items-center">
 			{#if loading}
-				<div class=" text-gray-500 rounded-full cursor-not-allowed">
-					<svg
-						width="24"
-						height="24"
-						viewBox="0 0 24 24"
-						xmlns="http://www.w3.org/2000/svg"
-						fill="currentColor"
+				<div class="flex gap-2">
+					<button
+						type="button"
+						class="p-1.5 bg-red-500 text-white rounded-full"
+						on:click={cancelTranscription}
+					>
+						取消轉譯
+					</button>
+
+					<button
+						type="button"
+						class="p-1.5 bg-blue-500 text-white rounded-full"
+						on:click={downloadAudio}
+					>
+						下載音檔
+					</button>
+				</div> <!-- ✅ 這裡關閉 `flex gap-2`，確保 `if` 內的 div 有正確結束 -->
+
+					<div class="text-gray-500 rounded-full cursor-not-allowed">
+						<svg
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="currentColor"
 						><style>
 							.spinner_OSmW {
 								transform-origin: center;
@@ -478,10 +515,10 @@
 								transform="rotate(150 12 12)"
 								opacity=".86"
 							/><rect x="11" y="1" width="2" height="5" transform="rotate(180 12 12)" /></g
-						></svg
-					>
-				</div>
+						></svg>
+					</div>		
 			{:else}
+			<div> <!-- ✅ 這裡補上 div，確保 `else` 內的 UI 有包住 -->
 				<button
 					type="button"
 					class="p-1.5 bg-indigo-500 text-white dark:bg-indigo-500 dark:text-blue-950 rounded-full"
@@ -500,6 +537,7 @@
 						<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
 					</svg>
 				</button>
+			</div> <!-- ✅ 這裡補上 div，確保 `else` 內的結構完整 -->
 			{/if}
 		</div>
 	</div>
