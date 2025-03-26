@@ -316,9 +316,6 @@
 		resizeObserver.disconnect();
 	});
 	// 增加的兩個新按鈕 取消音檔 下載音檔
-	function cancelTranscription() {
-		alert('您已取消轉譯，建議下載音檔以防流失！');
-	}
 
 	function downloadAudio() {
     	const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
@@ -342,52 +339,49 @@
 		? ' bg-gray-100/50 dark:bg-gray-850/50'
 		: 'bg-indigo-300/10 dark:bg-indigo-500/10 '} rounded-full flex justify-between {className}"
 >
+	<!-- ❌ 錄音中止按鈕 -->
 	<div class="flex items-center mr-1">
 		<button
 			type="button"
-			class="p-1.5
-
-            {loading
+			class="p-1.5 {loading
 				? ' bg-gray-200 dark:bg-gray-700/50'
-				: 'bg-indigo-400/20 text-indigo-600 dark:text-indigo-300 '} 
-
-
-             rounded-full"
+				: 'bg-indigo-400/20 text-indigo-600 dark:text-indigo-300 '} rounded-full"
 			on:click={async () => {
 				stopRecording();
 				dispatch('cancel');
 			}}
 		>
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				fill="none"
-				viewBox="0 0 24 24"
-				stroke-width="3"
-				stroke="currentColor"
-				class="size-4"
-			>
+			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="size-4">
 				<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
 			</svg>
 		</button>
 	</div>
 
-	<div
-		class="flex flex-1 self-center items-center justify-between ml-2 mx-1 overflow-hidden h-6"
-		dir="rtl"
-	>
-		<div
-			class="flex items-center gap-0.5 h-6 w-full max-w-full overflow-hidden overflow-x-hidden flex-wrap"
-		>
+	<!-- ✅ 若轉譯失敗，顯示「重新上傳」 -->
+	{#if confirmed && transcription === ''}
+		<div class="flex items-center">
+			<button
+				type="button"
+				class="p-1.5 bg-yellow-500 text-white rounded-full"
+				on:click={confirmRecording}
+			>
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+				<path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
+				<path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+			</svg>
+			</button>
+		</div>
+	{/if}
+
+	<!-- 🔊 錄音視覺化 -->
+	<div class="flex flex-1 self-center items-center justify-between ml-2 mx-1 overflow-hidden h-6" dir="rtl">
+		<div class="flex items-center gap-0.5 h-6 w-full max-w-full overflow-hidden overflow-x-hidden flex-wrap">
 			{#each visualizerData.slice().reverse() as rms}
 				<div class="flex items-center h-full">
 					<div
-						class="w-[2px] shrink-0
-                    
-                    {loading
-							? ' bg-gray-500 dark:bg-gray-400   '
-							: 'bg-indigo-500 dark:bg-indigo-400  '} 
-                    
-                    inline-block h-full"
+						class="w-[2px] shrink-0 {loading
+							? ' bg-gray-500 dark:bg-gray-400'
+							: 'bg-indigo-500 dark:bg-indigo-400'} inline-block h-full"
 						style="height: {Math.min(100, Math.max(14, rms * 100))}%;"
 					/>
 				</div>
@@ -395,149 +389,79 @@
 		</div>
 	</div>
 
+	<!-- 🕒 錄音時間 + 動態按鈕 -->
 	<div class="flex">
-		<div class="  mx-1.5 pr-1 flex justify-center items-center">
-			<div
-				class="text-sm
-        
-        
-        {loading ? ' text-gray-500  dark:text-gray-400  ' : ' text-indigo-400 '} 
-       font-medium flex-1 mx-auto text-center"
-			>
+		<div class="mx-1.5 pr-1 flex justify-center items-center">
+			<div class="text-sm {loading ? 'text-gray-500 dark:text-gray-400' : 'text-indigo-400'} font-medium flex-1 mx-auto text-center">
 				{formatSeconds(durationSeconds)}
 			</div>
 		</div>
 
 		<div class="flex items-center">
 			{#if loading}
+				<!-- 🔽 loading 狀態：下載按鈕 + 轉圈 -->
 				<div class="flex gap-2">
-					<button
-						type="button"
-						class="p-1.5 bg-red-500 text-white rounded-full"
-						on:click={cancelTranscription}
-					>
-						取消轉譯
-					</button>
-
 					<button
 						type="button"
 						class="p-1.5 bg-blue-500 text-white rounded-full"
 						on:click={downloadAudio}
 					>
-						下載音檔
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+						<path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+						<path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+					</svg>
 					</button>
-				</div> <!-- ✅ 這裡關閉 `flex gap-2`，確保 `if` 內的 div 有正確結束 -->
+				</div>
 
-					<div class="text-gray-500 rounded-full cursor-not-allowed">
-						<svg
-							width="24"
-							height="24"
-							viewBox="0 0 24 24"
-							xmlns="http://www.w3.org/2000/svg"
-							fill="currentColor"
-						><style>
+				<!-- 🔄 轉圈動畫 -->
+				<div class="text-gray-500 rounded-full cursor-not-allowed">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+						<style>
 							.spinner_OSmW {
 								transform-origin: center;
 								animation: spinner_T6mA 0.75s step-end infinite;
 							}
 							@keyframes spinner_T6mA {
-								8.3% {
-									transform: rotate(30deg);
-								}
-								16.6% {
-									transform: rotate(60deg);
-								}
-								25% {
-									transform: rotate(90deg);
-								}
-								33.3% {
-									transform: rotate(120deg);
-								}
-								41.6% {
-									transform: rotate(150deg);
-								}
-								50% {
-									transform: rotate(180deg);
-								}
-								58.3% {
-									transform: rotate(210deg);
-								}
-								66.6% {
-									transform: rotate(240deg);
-								}
-								75% {
-									transform: rotate(270deg);
-								}
-								83.3% {
-									transform: rotate(300deg);
-								}
-								91.6% {
-									transform: rotate(330deg);
-								}
-								100% {
-									transform: rotate(360deg);
-								}
+								8.3% { transform: rotate(30deg); }
+								16.6% { transform: rotate(60deg); }
+								25% { transform: rotate(90deg); }
+								33.3% { transform: rotate(120deg); }
+								41.6% { transform: rotate(150deg); }
+								50% { transform: rotate(180deg); }
+								58.3% { transform: rotate(210deg); }
+								66.6% { transform: rotate(240deg); }
+								75% { transform: rotate(270deg); }
+								83.3% { transform: rotate(300deg); }
+								91.6% { transform: rotate(330deg); }
+								100% { transform: rotate(360deg); }
 							}
-						</style><g class="spinner_OSmW"
-							><rect x="11" y="1" width="2" height="5" opacity=".14" /><rect
-								x="11"
-								y="1"
-								width="2"
-								height="5"
-								transform="rotate(30 12 12)"
-								opacity=".29"
-							/><rect
-								x="11"
-								y="1"
-								width="2"
-								height="5"
-								transform="rotate(60 12 12)"
-								opacity=".43"
-							/><rect
-								x="11"
-								y="1"
-								width="2"
-								height="5"
-								transform="rotate(90 12 12)"
-								opacity=".57"
-							/><rect
-								x="11"
-								y="1"
-								width="2"
-								height="5"
-								transform="rotate(120 12 12)"
-								opacity=".71"
-							/><rect
-								x="11"
-								y="1"
-								width="2"
-								height="5"
-								transform="rotate(150 12 12)"
-								opacity=".86"
-							/><rect x="11" y="1" width="2" height="5" transform="rotate(180 12 12)" /></g
-						></svg>
-					</div>		
-			{:else}
-			<div> <!-- ✅ 這裡補上 div，確保 `else` 內的 UI 有包住 -->
-				<button
-					type="button"
-					class="p-1.5 bg-indigo-500 text-white dark:bg-indigo-500 dark:text-blue-950 rounded-full"
-					on:click={async () => {
-						await confirmRecording();
-					}}
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="2.5"
-						stroke="currentColor"
-						class="size-4"
-					>
-						<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+						</style>
+						<g class="spinner_OSmW">
+							<rect x="11" y="1" width="2" height="5" opacity=".14" />
+							<rect x="11" y="1" width="2" height="5" transform="rotate(30 12 12)" opacity=".29" />
+							<rect x="11" y="1" width="2" height="5" transform="rotate(60 12 12)" opacity=".43" />
+							<rect x="11" y="1" width="2" height="5" transform="rotate(90 12 12)" opacity=".57" />
+							<rect x="11" y="1" width="2" height="5" transform="rotate(120 12 12)" opacity=".71" />
+							<rect x="11" y="1" width="2" height="5" transform="rotate(150 12 12)" opacity=".86" />
+							<rect x="11" y="1" width="2" height="5" transform="rotate(180 12 12)" />
+						</g>
 					</svg>
-				</button>
-			</div> <!-- ✅ 這裡補上 div，確保 `else` 內的結構完整 -->
+				</div>
+			{:else}
+				<!-- ✅ 錄音完成時：顯示打勾按鈕 -->
+				<div>
+					<button
+						type="button"
+						class="p-1.5 bg-indigo-500 text-white dark:bg-indigo-500 dark:text-blue-950 rounded-full"
+						on:click={async () => {
+							await confirmRecording();
+						}}
+					>
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="size-4">
+							<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+						</svg>
+					</button>
+				</div>
 			{/if}
 		</div>
 	</div>
