@@ -330,14 +330,21 @@
     	window.URL.revokeObjectURL(url);
 	}
 
+	function isNetworkUnstable() {
+		// Placeholder function to determine network stability
+		// Replace with actual logic to detect network issues
+		return false;
+	}
+
 </script>
 
 
+<!-- Start of Selection -->
 <div
 	bind:clientWidth={containerWidth}
 	class="{loading
 		? ' bg-gray-100/50 dark:bg-gray-850/50'
-		: 'bg-indigo-300/10 dark:bg-indigo-500/10 '} rounded-full flex justify-between {className}"
+		: 'bg-indigo-300/10 dark:bg-indigo-500/10 '} rounded-full flex justify-between items-center {className}"
 >
 	<!-- ❌ 錄音中止按鈕 -->
 	<div class="flex items-center mr-1">
@@ -356,22 +363,6 @@
 			</svg>
 		</button>
 	</div>
-
-	<!-- ✅ 若轉譯失敗，顯示「重新上傳」 -->
-	{#if confirmed && transcription === ''}
-		<div class="flex items-center">
-			<button
-				type="button"
-				class="p-1.5 bg-yellow-500 text-white rounded-full"
-				on:click={confirmRecording}
-			>
-			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-				<path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
-				<path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
-			</svg>
-			</button>
-		</div>
-	{/if}
 
 	<!-- 🔊 錄音視覺化 -->
 	<div class="flex flex-1 self-center items-center justify-between ml-2 mx-1 overflow-hidden h-6" dir="rtl">
@@ -399,20 +390,6 @@
 
 		<div class="flex items-center">
 			{#if loading}
-				<!-- 🔽 loading 狀態：下載按鈕 + 轉圈 -->
-				<div class="flex gap-2">
-					<button
-						type="button"
-						class="p-1.5 bg-blue-500 text-white rounded-full"
-						on:click={downloadAudio}
-					>
-					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
-						<path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
-						<path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
-					</svg>
-					</button>
-				</div>
-
 				<!-- 🔄 轉圈動畫 -->
 				<div class="text-gray-500 rounded-full cursor-not-allowed">
 					<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -465,6 +442,39 @@
 			{/if}
 		</div>
 	</div>
+
+	<!-- Unified area for "重新上傳" and "下載音檔" buttons -->
+	<div class="flex items-center justify-end -mt-[1px]"> <!-- 👈 微調往上 -->
+	<!--<div class="flex items-center justify-end">--> <!--原🔁「重新上傳」與 ⬇️「下載音檔」位置參數-->
+		{#if isNetworkUnstable()}
+			<div class="flex items-center">
+				<button
+					type="button"
+					class="p-1.5 bg-indigo-500 text-white dark:bg-indigo-500 dark:text-blue-950 rounded-full"
+					on:click={confirmRecording}
+				>
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+					<path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
+					<path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+				</svg>
+				</button>
+			</div>
+		{/if}
+		{#if confirmed}
+			<div class="flex gap-2 items-center">
+				<button
+					type="button"
+					class="p-1.5 bg-indigo-500 text-white dark:bg-indigo-500 dark:text-blue-950 rounded-full"
+					on:click={downloadAudio}
+				>
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download translate-y-[-1px]" viewBox="0 0 16 16">
+					<path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+					<path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+				</svg>
+				</button>
+			</div>
+		{/if}
+	</div>
 </div>
 
 <style>
@@ -478,3 +488,4 @@
 		background-color: #4a5aba; /* or whatever color you need */
 	}
 </style>
+<!-- End of Selection -->
